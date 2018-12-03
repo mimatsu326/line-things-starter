@@ -248,7 +248,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
             const val = (new Uint8Array(e.target.value.buffer));
             
             const el = document.getElementById("click-count");
-            el.innerText = val;
+            el.innerText = (val[3] << 24) + (val [2] << 16) + (val [1] << 8) + val [0];;
 
         });
     }).catch(error => {
