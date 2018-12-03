@@ -49,8 +49,8 @@ function uiToggleLedButton(state) {
 function uiCountPressButton() {
     clickCount++;
 
-    const el = document.getElementById("click-count");
-    el.innerText = clickCount;
+    //const el = document.getElementById("click-count");
+    //el.innerText = clickCount;
 }
 
 function uiToggleStateButton(pressed) {
@@ -246,14 +246,10 @@ function liffGetButtonStateCharacteristic(characteristic) {
     characteristic.startNotifications().then(() => {
         characteristic.addEventListener('characteristicvaluechanged', e => {
             const val = (new Uint8Array(e.target.value.buffer))[0];
-            if (val > 0) {
-                // press
-                uiToggleStateButton(true);
-            } else {
-                // release
-                uiToggleStateButton(false);
-                uiCountPressButton();
-            }
+            
+            const el = document.getElementById("click-count");
+            el.innerText = val;
+
         });
     }).catch(error => {
         uiStatusError(makeErrorMsg(error), false);
