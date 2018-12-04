@@ -250,7 +250,9 @@ function liffGetButtonStateCharacteristic(characteristic) {
             var lat_l = (val[3] << 24) + (val [2] << 16) + (val [1] << 8) + val [0];
             var lng_l = (val[7] << 24) + (val [6] << 16) + (val [5] << 8) + val [4];
             var tm = (val[8]+9)+":"+val[9]+":"+val[10];
-            el.innerText = tm + ";" + lat_l + "," + lng_l;
+            var dist = (val[11] << 8) + val[12];
+            var dir =  (val[13] << 8) + val[14];
+            el.innerText = tm + ";" + lat_l + "," + lng_l + "," + dist + "," + dir;
 
         });
     }).catch(error => {
