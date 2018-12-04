@@ -251,7 +251,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
             var tm = val[0] + ":" + val[1] + ":" + val[2];
             var lat_l = (val[6] << 24) + (val [5] << 16) + (val [4] << 8) + val [3];
             var lng_l = (val[10] << 24) + (val [9] << 16) + (val [8] << 8) + val [7];
-            el.innerText = tm + " " + lat_l + "," + lng_l;
+            el.innerText = tm + "," + lat_l + "," + lng_l;
 
         });
     }).catch(error => {
