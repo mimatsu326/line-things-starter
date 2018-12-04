@@ -12,6 +12,14 @@ const PSDI_CHARACTERISTIC_UUID  = '26E2B12B-85F0-4F3F-9FDD-91D114270E6E';
 let ledState = false; // true: LED on, false: LED off
 let clickCount = 0;
 
+var features = [];
+var mapLayer ;
+var markerLayer ;
+var markerStyleA;
+var markerFeatureA;
+var marker;
+var view;
+
 // -------------- //
 // On window load //
 // -------------- //
