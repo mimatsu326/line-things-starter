@@ -249,7 +249,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
             const val = (new Uint8Array(e.target.value.buffer));           
             const el = document.getElementById("click-count");
             var lat_l = ( (val[3] << 24) + (val [2] << 16) + (val [1] << 8) + val [0] )/1000000;
-            var lng_l = (val[7] << 24) + (val [6] << 16) + (val [5] << 8) + val [4];
+            var lng_l = ( (val[7] << 24) + (val [6] << 16) + (val [5] << 8) + val [4] )/1000000;
             var tm = (val[8]+9)+":"+val[9]+":"+val[10];
             var dist = (val[11] << 8) + val[12];
             var dir =  (val[13] << 8) + val[14];
