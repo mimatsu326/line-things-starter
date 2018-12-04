@@ -88,7 +88,9 @@ function uiToggleDeviceConnected(connected) {
         elStatus.innerText = "Device connected";
         // Show controls
         elControls.classList.remove("hidden");
-    } else {
+        alert("aaa");
+        map_view();
+        } else {
         // Show loading animation
         uiToggleLoadingAnimation(true);
         // Show status disconnected
@@ -137,8 +139,6 @@ function makeErrorMsg(errorObj) {
 // -------------- //
 
 function initializeApp() {
-    alert("aaa");
-    map_view();
     liff.init(() => initializeLiff(), error => uiStatusError(makeErrorMsg(error), false));
 }
 
