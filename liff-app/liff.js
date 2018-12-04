@@ -137,6 +137,7 @@ function makeErrorMsg(errorObj) {
 // -------------- //
 
 function initializeApp() {
+    alert("aaa");
     map_view();
     liff.init(() => initializeLiff(), error => uiStatusError(makeErrorMsg(error), false));
 }
