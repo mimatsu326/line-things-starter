@@ -8,6 +8,10 @@ const BTN_CHARACTERISTIC_UUID   = '62FBD229-6EDD-4D1A-B554-5C4E1BB29169';
 const PSDI_SERVICE_UUID         = 'E625601E-9E55-4597-A598-76018A0D293D'; // Device ID
 const PSDI_CHARACTERISTIC_UUID  = '26E2B12B-85F0-4F3F-9FDD-91D114270E6E';
 
+// UI settings
+let ledState = false; // true: LED on, false: LED off
+let clickCount = 0;
+
 // -------------- //
 // On window load //
 // -------------- //
@@ -15,6 +19,51 @@ const PSDI_CHARACTERISTIC_UUID  = '26E2B12B-85F0-4F3F-9FDD-91D114270E6E';
 window.onload = () => {
     initializeApp();
 };
+
+// ----------------- //
+// Handler functions //
+// ----------------- //
+
+function handlerToggleLed() {
+    ledState = !ledState;
+
+    uiToggleLedButton(ledState);
+    liffToggleDeviceLedState(ledState);
+}
+
+// ------------ //
+// UI functions //
+// ------------ //
+
+function uiToggleLedButton(state) {
+    const el = document.getElementById("btn-led-toggle");
+    el.innerText = state ? "Switch LED OFF" : "Switch LED ON";
+
+    if (state) {
+      el.classList.add("led-on");
+    } else {
+      el.classList.remove("led-on");
+    }
+}
+
+function uiCountPressButton() {
+    clickCount++;
+
+    //const el = document.getElementById("click-count");
+    //el.innerText = clickCount;
+}
+
+function uiToggleStateButton(pressed) {
+    const el = document.getElementById("btn-state");
+
+    if (pressed) {
+        el.classList.add("pressed");
+        el.innerText = "Pressed";
+    } else {
+        el.classList.remove("pressed");
+        el.innerText = "Released";
+    }
+}
 
 function uiToggleDeviceConnected(connected) {
     const elStatus = document.getElementById("status");
@@ -41,6 +90,38 @@ function uiToggleDeviceConnected(connected) {
         // Hide controls
         elControls.classList.add("hidden");
     }
+}
+
+function uiToggleLoadingAnimation(isLoading) {
+    const elLoading = document.getElementById("loading-animation");
+
+    if (isLoading) {
+        // Show loading animation
+        elLoading.classList.remove("hidden");
+    } else {
+        // Hide loading animation
+        elLoading.classList.add("hidden");
+    }
+}
+
+function uiStatusError(message, showLoadingAnimation) {
+    uiToggleLoadingAnimation(showLoadingAnimation);
+
+    const elStatus = document.getElementById("status");
+    const elControls = document.getElementById("controls");
+
+    // Show status error
+    elStatus.classList.remove("success");
+    elStatus.classList.remove("inactive");
+    elStatus.classList.add("error");
+    elStatus.innerText = message;
+
+    // Hide controls
+    elControls.classList.add("hidden");
+}
+
+function makeErrorMsg(errorObj) {
+    return "Error\n" + errorObj.code + "\n" + errorObj.message;
 }
 
 // -------------- //
@@ -84,6 +165,8 @@ function liffRequestDevice() {
 
 function liffConnectToDevice(device) {
     device.gatt.connect().then(() => {
+        document.getElementById("device-name").innerText = device.name;
+        document.getElementById("device-id").innerText = device.id;
 
         // Show status connected
         uiToggleDeviceConnected(true);
@@ -124,6 +207,25 @@ function liffConnectToDevice(device) {
     });
 }
 
+function liffGetUserService(service) {
+    // Button pressed state
+    service.getCharacteristic(BTN_CHARACTERISTIC_UUID).then(characteristic => {
+        liffGetButtonStateCharacteristic(characteristic);
+    }).catch(error => {
+        uiStatusError(makeErrorMsg(error), false);
+    });
+
+    // Toggle LED
+    service.getCharacteristic(LED_CHARACTERISTIC_UUID).then(characteristic => {
+        window.ledCharacteristic = characteristic;
+
+        // Switch off by default
+        liffToggleDeviceLedState(false);
+    }).catch(error => {
+        uiStatusError(makeErrorMsg(error), false);
+    });
+}
+
 function liffGetPSDIService(service) {
     // Get PSDI value
     service.getCharacteristic(PSDI_CHARACTERISTIC_UUID).then(characteristic => {
@@ -148,10 +250,20 @@ function liffGetButtonStateCharacteristic(characteristic) {
             const el = document.getElementById("click-count");
             var lat_l = (val[3] << 24) + (val [2] << 16) + (val [1] << 8) + val [0];
             var lng_l = (val[7] << 24) + (val [6] << 16) + (val [5] << 8) + val [4];
-            el.innerText = lng_l;
+            el.innerText = lat_l + "," + lng_l;
 
         });
     }).catch(error => {
+        uiStatusError(makeErrorMsg(error), false);
+    });
+}
+
+function liffToggleDeviceLedState(state) {
+    // on: 0x01
+    // off: 0x00
+    window.ledCharacteristic.writeValue(
+        state ? new Uint8Array([0x01]) : new Uint8Array([0x00])
+    ).catch(error => {
         uiStatusError(makeErrorMsg(error), false);
     });
 }
