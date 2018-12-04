@@ -248,9 +248,10 @@ function liffGetButtonStateCharacteristic(characteristic) {
             const val = (new Uint8Array(e.target.value.buffer));
             
             const el = document.getElementById("click-count");
-            var lat_l = (val[3] << 24) + (val [2] << 16) + (val [1] << 8) + val [0];
-            var lng_l = (val[7] << 24) + (val [6] << 16) + (val [5] << 8) + val [4];
-            el.innerText = lat_l + "," + lng_l;
+            var tm = val[0] + ":" + val[1] + ":" + val[2];
+            var lat_l = (val[6] << 24) + (val [5] << 16) + (val [4] << 8) + val [3];
+            var lng_l = (val[10] << 24) + (val [9] << 16) + (val [8] << 8) + val [7];
+            el.innerText = tm + " " + lat_l + "," + lng_l;
 
         });
     }).catch(error => {
