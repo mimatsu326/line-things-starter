@@ -130,6 +130,7 @@ function makeErrorMsg(errorObj) {
 
 function initializeApp() {
     liff.init(() => initializeLiff(), error => uiStatusError(makeErrorMsg(error), false));
+    map_view();
 }
 
 function initializeLiff() {
@@ -269,3 +270,136 @@ function liffToggleDeviceLedState(state) {
         uiStatusError(makeErrorMsg(error), false);
     });
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+function map_view() {
+    //var features = [];
+    
+    //var mark_pos = {
+    //"mk1": {lat:35.515, lon:133.27 ,color:"red"},
+    //"mk2": {lat:35.51442, lon:133.2768567 ,color:"red"},
+    //"mk3": {lat:35.50831167, lon:133.2687583 ,color:"blue"},
+    //"mk4": {lat:35.50908167, lon:133.2804667 ,color:"yellow"},
+    //};
+    
+    //表示用のview
+    view = new ol.View({
+        projection: "EPSG:3857",
+        maxZoom: 18,
+        minZoom: 0
+    });
+    
+    //地図用のレイヤ
+    mapLayer = new ol.layer.Tile({
+        name : "MapLayer",
+        source: new ol.source.OSM() //openstreet map
+    });
+    
+    //mapを設定
+    map = new ol.Map({
+        target: document.getElementById('map'),
+        layers: [mapLayer],
+        view: view,
+        renderer: ['canvas', 'dom'],
+        controls: ol.control.defaults(),
+        interactions: ol.interaction.defaults()
+    });
+    
+    //中心座標
+    var default_lon = 133.265782;
+    var default_lat = 35.512483;
+    
+    //センターの初期設定
+    view.setCenter(ol.proj.transform([default_lon, default_lat], "EPSG:4326", "EPSG:3857"));
+    
+    //ズームレベルの初期設定
+    view.setZoom(14);
+    
+    //スケールラインの追加
+    map.addControl(new ol.control.ScaleLine());
+    
+    //マーカー用レイヤの作成
+    markerLayer = new ol.layer.Vector({
+        name : "MarkerLayer",
+        source : new ol.source.Vector()
+    });
+    
+    //マーカー用レイヤをマップに追加
+    map.addLayer(markerLayer);
+    
+    //マーカーの追加
+    //for (var key in mark_pos) {
+    //    marker = makeFeature(ol.proj.transform([mark_pos[key].lon, mark_pos[key].lat], "EPSG:4326", "EPSG:3857"),key,mark_pos[key].color);
+    //    features.push(marker);
+    //}
+    //markerLayer.getSource().addFeatures(features);
+    
+    markerStyleA = new ol.style.Style({
+        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ {
+            anchor: [0.5, 0.5],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            opacity: 1,
+            scale:0.5,
+            rotation:300/180*3.141592,
+            src: 'http://jsrun.it/assets/s/p/v/r/spvrT.png'
+        }),
+        
+        text : new ol.style.Text({
+            font: "bold 10px sans-serif",
+            text : "100d 2kt",
+            textAlign: "left",
+            textBaseline: "top",
+            offsetX: 10,
+            offsetY: 10
+            
+        })     
+    });
+    
+    
+    markerFeatureA = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.transform([default_lon, default_lat], "EPSG:4326", "EPSG:3857"))
+    });
+    markerFeatureA.setStyle(markerStyleA);
+    features.push(markerFeatureA);
+    markerLayer.getSource().addFeatures(features);
+    
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////    
+//マーカーのfeatureを作成
+function makeFeature(point,mk_name,clr) {
+    
+    //円を作成
+    feature = new ol.Feature({
+        geometry : new ol.geom.Point([point[0], point[1] ]),
+        name : mk_name
+    });
+    var style = new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 4,
+            fill: new ol.style.Fill({
+                color: clr
+            })
+        }),
+        
+        text : new ol.style.Text({
+            font: "bold 16px sans-serif",
+            text : "",
+            textAlign: "left",
+            textBaseline: "top",
+            offsetX: 5,
+            offsetY: 5
+            
+        })                
+        
+    });
+    
+    feature.setStyle(style);
+    
+    return feature;
+}
+/////////////////////////////////////////////////////////////////////////////
